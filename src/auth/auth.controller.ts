@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signUp.dto';
-import { Public } from 'src/common/decorators/public-route.decorator';
+import { Public } from 'src/common/decorators/publicRoute.decorator';
 import { Tokens } from './types/tokens.type';
 import { SignInDto } from './dto/signIn.dto';
 import { LogOutResponse } from './types/logOut.types';
