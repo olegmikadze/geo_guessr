@@ -106,9 +106,10 @@ export class AuthService {
       );
 
     const refreshCorrect = await bcrypt.compare(
-      refreshUser.refreshToken,
       refreshToken,
+      refreshUser.refreshToken,
     );
+    
     if (!refreshCorrect) throw new HttpException(
       'FORBIDDEN',
       HttpStatus.FORBIDDEN,

@@ -16,6 +16,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { RefreshGuard } from './guards/refresh-jwt.guard';
 import { UserRefreshPayload } from './types/userPayload.type';
 import { JwtPayload } from './types/jwtPayload.type';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +36,7 @@ export class AuthController {
     return await this.authService.signIn(signInDto);
   }
 
+  @ApiBearerAuth()
   @Post('/logOut')
   async logOut(@User() user: JwtPayload): LogOutResponse {
     return await this.authService.logOut({ userId: user.sub });
@@ -43,7 +45,9 @@ export class AuthController {
   @Post('/refreshTokens')
   @Public()
   @UseGuards(RefreshGuard)
+  @ApiBearerAuth()
   async refreshTokens(@User() user: UserRefreshPayload) {
+    console.log("🚀 ~ file: auth.controller.ts:50 ~ AuthController ~ refreshTokens ~ user:", user)
     return this.authService.refreshTokens({
       userId: user.sub,
       refreshToken: user.refreshToken,
