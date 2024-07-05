@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
@@ -11,6 +12,10 @@ import { bcryptHash } from 'utils/bcrypt';
 import { SignJwtTokens } from './types/signJwtTokens.type';
 import { SignInDto } from './dto/signIn.dto';
 import * as bcrypt from 'bcrypt';
+import { LogOutDto } from './dto/logOut.dto';
+import { LogOutResponse } from './types/logOut.types';
+import { RefreshTokensDto } from './dto/refreshTokens.dto';
+import { UpdateRefreshTokens } from './types/updateRefreshTokens.type';
 @Injectable()
 export class AuthService {
   constructor(
@@ -48,7 +53,7 @@ export class AuthService {
       email: newUser.email,
     });
 
-    await this.updateRefreshToken(newUser.email, refreshToken);
+    await this.updateRefreshToken({ _id: newUser.id, refreshToken });
 
     return { accessToken, refreshToken };
   }
@@ -68,20 +73,58 @@ export class AuthService {
       email: signInUser.email,
     });
 
-    await this.updateRefreshToken(signInUser.email, refreshToken);
+    await this.updateRefreshToken({ _id: signInUser.id, refreshToken });
 
     return { accessToken, refreshToken };
   }
 
-  async logOut() {}
+  async logOut({ userId }: LogOutDto): LogOutResponse {
+    const logOutUser = await this.userModel.findById(userId);
 
-  async refreshTokens() {}
+    if (!logOutUser)
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
 
-  async updateRefreshToken(email, refreshToken) {
+    // together with removing access token from localStorage on frontend
+    await this.userModel.updateOne(
+      { _id: logOutUser._id },
+      { refreshToken: '' },
+    );
+
+    return { status: HttpStatus.OK, message: 'OK' };
+  }
+
+  async refreshTokens({ userId, refreshToken }: RefreshTokensDto) {
+    const refreshUser = await this.userModel.findById(userId);
+
+    if (!refreshUser || !refreshUser.refreshToken)
+      throw new HttpException(
+        'FORBIDDEN',
+        HttpStatus.FORBIDDEN,
+      );
+
+    const refreshCorrect = await bcrypt.compare(
+      refreshUser.refreshToken,
+      refreshToken,
+    );
+    if (!refreshCorrect) throw new HttpException(
+      'FORBIDDEN',
+      HttpStatus.FORBIDDEN,
+    );
+
+    const tokens = await this.signJwtTokens({ userId: refreshUser.id, email: refreshUser.email });
+    await this.updateRefreshToken({ _id: refreshUser.id, refreshToken: tokens.refreshToken });
+
+    return tokens;
+  }
+
+  async updateRefreshToken({ _id, refreshToken }: UpdateRefreshTokens) {
     try {
       const hashedRefreshToken = await bcryptHash(refreshToken);
       await this.userModel.findOneAndUpdate(
-        { email },
+        { _id },
         { refreshToken: hashedRefreshToken },
       );
     } catch (err) {
