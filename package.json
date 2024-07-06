@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "name": "geo_guessr",
   "version": "0.0.1",
   "description": "",
