@@ -68,14 +68,10 @@ export class GeolocationsService implements OnApplicationShutdown {
     } else ipAddresses.push(address);
 
     for await (const ipAddress of ipAddresses) {
-      const geolocationExists = await this.geolocationModel
-        .findOne({
-          ip: ipAddress,
-          uid: user.sub,
-        })
-        .catch((error) => {
-          throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
-        });
+      const geolocationExists = await this.geolocationModel.findOne({
+        ip: ipAddress,
+        uid: user.sub,
+      });
 
       if (geolocationExists) {
         if (hostname && !geolocationExists.url)
@@ -91,32 +87,28 @@ export class GeolocationsService implements OnApplicationShutdown {
         continue;
       }
 
-      try {
-        const { data } = await firstValueFrom(
-          this.httpService
-            .get<GeoLocation>(
-              `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`,
-            )
-            .pipe(
-              catchError(() => {
-                throw 'An error happened!';
-              }),
-            ),
-        );
+      const { data } = await firstValueFrom(
+        this.httpService
+          .get<GeoLocation>(
+            `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`,
+          )
+          .pipe(
+            catchError(() => {
+              throw 'An error happened!';
+            }),
+          ),
+      );
 
-        await this.geolocationModel.create({
-          uid: user.sub,
-          url: hostname,
-          ip: ipAddress,
-          type: data.type,
-          continent_name: data.continent_name,
-          country_name: data.country_name,
-          city: data.city,
-          zip: data.zip,
-        });
-      } catch (err) {
-        throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
-      }
+      await this.geolocationModel.create({
+        uid: user.sub,
+        url: hostname,
+        ip: ipAddress,
+        type: data.type,
+        continent_name: data.continent_name,
+        country_name: data.country_name,
+        city: data.city,
+        zip: data.zip,
+      });
     }
 
     return { status: HttpStatus.CREATED, message: 'Created' };
