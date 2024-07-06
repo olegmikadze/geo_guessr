@@ -18,6 +18,7 @@ import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
+import axios from 'axios';
 
 @Injectable()
 export class GeolocationsService implements OnApplicationShutdown {
@@ -60,7 +61,10 @@ export class GeolocationsService implements OnApplicationShutdown {
     let ipAddresses = [];
 
     const addressPattern = findAddressPattern({ address });
-    console.log("🚀 ~ file: geolocations.service.ts:63 ~ GeolocationsService ~ addGeolocation ~ addressPattern:", addressPattern)
+    console.log(
+      '🚀 ~ file: geolocations.service.ts:63 ~ GeolocationsService ~ addGeolocation ~ addressPattern:',
+      addressPattern,
+    );
 
     if (addressPattern === 'url') {
       if (!/^https?:\/\//i.test(address)) address = `http://${address}`;
@@ -68,13 +72,19 @@ export class GeolocationsService implements OnApplicationShutdown {
       ipAddresses = await findIpByUrl(hostname);
     } else ipAddresses.push(address);
 
-    console.log("🚀 ~ file: geolocations.service.ts:72 ~ GeolocationsService ~ forawait ~ ipAddresses:", ipAddresses)
+    console.log(
+      '🚀 ~ file: geolocations.service.ts:72 ~ GeolocationsService ~ forawait ~ ipAddresses:',
+      ipAddresses,
+    );
     for await (const ipAddress of ipAddresses) {
       const geolocationExists = await this.geolocationModel.findOne({
         ip: ipAddress,
         uid: user.sub,
       });
-      console.log("🚀 ~ file: geolocations.service.ts:75 ~ GeolocationsService ~ forawait ~ geolocationExists:", geolocationExists)
+      console.log(
+        '🚀 ~ file: geolocations.service.ts:75 ~ GeolocationsService ~ forawait ~ geolocationExists:',
+        geolocationExists,
+      );
 
       if (geolocationExists) {
         if (hostname && !geolocationExists.url)
@@ -90,21 +100,20 @@ export class GeolocationsService implements OnApplicationShutdown {
         continue;
       }
 
-      console.log("🚀 ~ file: geolocations.service.ts:98 ~ GeolocationsService ~ forawait ~ `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`:", `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`)
-      const { data } = await firstValueFrom(
-        this.httpService
-          .get<GeoLocation>(
-            `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`,
-          )
-          .pipe(
-            catchError((err) => {
-              console.error(err);
-              throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
-            }),
-          ),
+      const { data } = await axios
+        .get<GeoLocation>(
+          `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`,
+        )
+        .catch((error) => {
+          console.error(error);
+          throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+        });
+
+      console.log(
+        '🚀 ~ file: geolocations.service.ts:109 ~ GeolocationsService ~ forawait ~ response:',
+        data,
       );
 
-      console.log("🚀 ~ file: geolocations.service.ts:104 ~ GeolocationsService ~ forawait ~ data:", data)
       await this.geolocationModel.create({
         uid: user.sub,
         url: hostname,
