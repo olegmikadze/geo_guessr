@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { Model } from 'mongoose';
@@ -17,14 +17,18 @@ import { LogOutResponse } from './types/logOut.types';
 import { RefreshTokensDto } from './dto/refreshTokens.dto';
 import { UpdateRefreshTokens } from './types/updateRefreshTokens.type';
 @Injectable()
-export class AuthService {
+export class AuthService implements OnApplicationShutdown {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
 
-  async signUp({ email, fullName, password, confirmPassword }: SignUpDto) {
+  onApplicationShutdown(signal?: string) {
+    console.log(signal);
+  }
+
+  async signUp({ email, fullName, password, confirmPassword }: SignUpDto): Promise<Tokens> {
     const userExists = await this.userModel.findOne({ email });
 
     if (userExists)

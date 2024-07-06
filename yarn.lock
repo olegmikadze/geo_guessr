@@ -824,7 +824,7 @@
     path-to-regexp "3.2.0"
     swagger-ui-dist "5.17.14"
 
-"@nestjs/testing@^10.0.0":
+"@nestjs/testing@^10.3.10":
   version "10.3.10"
   resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.3.10.tgz#6ed3c821fddf868665cc5ddc8591ee6eaab8a916"
   integrity sha512-i3HAtVQJijxNxJq1k39aelyJlyEIBRONys7IipH/4r8W0J+M1V+y5EKDOyi4j1SdNSb/vmNyWpZ2/ewZjl3kRA==
@@ -4105,6 +4105,11 @@ neo-async@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
+
+nestjs-graceful-shutdown@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/nestjs-graceful-shutdown/-/nestjs-graceful-shutdown-1.0.1.tgz#1bd05e439b740a669bc6ed34901c19e4df1a2e3d"
+  integrity sha512-AvwXNDyfTzSeM4oNoE9zZjip+Za5ycaChuOYuv0OBU0aociUtALzmICfBW5xasYut13chY7mlcIiSxAwYqmQvQ==
 
 node-abort-controller@^3.0.1:
   version "3.1.1"

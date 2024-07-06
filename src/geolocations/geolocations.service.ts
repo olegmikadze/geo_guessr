@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -15,12 +20,16 @@ import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
 
 @Injectable()
-export class GeolocationsService {
+export class GeolocationsService implements OnApplicationShutdown {
   constructor(
     @InjectModel(GeoLocation.name) private geolocationModel: Model<GeoLocation>,
     private readonly httpService: HttpService,
     private config: ConfigService,
   ) {}
+
+  onApplicationShutdown(signal?: string) {
+    console.log(signal);
+  }
 
   async findGeolocationsByUid({ userId }: FindGeolocationsByUid) {
     try {
@@ -90,8 +99,6 @@ export class GeolocationsService {
           ),
       );
 
-      console.log("🚀 ~ file: geolocations.service.ts:94 ~ GeolocationsService ~ forawait ~ data:", data)
-      
       await this.geolocationModel.create({
         uid: user.sub,
         url: hostname,
