@@ -83,7 +83,11 @@ export class AuthService implements OnApplicationShutdown {
   }
 
   async logOut({ userId }: LogOutDto): LogOutResponse {
-    const logOutUser = await this.userModel.findById(userId);
+    const logOutUser = await this.userModel
+      .findById(userId)
+      .catch((error) => {
+        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+      });
 
     if (!logOutUser)
       throw new HttpException(
@@ -92,16 +96,24 @@ export class AuthService implements OnApplicationShutdown {
       );
 
     // together with removing access token from localStorage on frontend
-    await this.userModel.updateOne(
-      { _id: logOutUser._id },
-      { refreshToken: '' },
-    );
+    await this.userModel
+      .updateOne(
+        { _id: logOutUser._id },
+        { refreshToken: '' },
+      )
+      .catch((error) => {
+        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+      });
 
     return { status: HttpStatus.OK, message: 'OK' };
   }
 
   async refreshTokens({ userId, refreshToken }: RefreshTokensDto) {
-    const refreshUser = await this.userModel.findById(userId);
+    const refreshUser = await this.userModel
+      .findById(userId)
+      .catch((error) => {
+        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+      });;
 
     if (!refreshUser || !refreshUser.refreshToken)
       throw new HttpException(
