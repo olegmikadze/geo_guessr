@@ -25,6 +25,7 @@ async function bootstrap() {
     process.env.HOST || '0.0.0.0',
     function () {
       console.log('Server started.......');
+      console.log(process.env.MONGO_URL);
     },
   );
 }
