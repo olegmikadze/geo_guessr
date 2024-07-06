@@ -23,8 +23,8 @@ export class GeoLocation {
   @Prop({ required: true })
   city: string;
 
-  @Prop({ required: true })
-  zip: string;
+  @Prop()
+  zip: string | null;
 }
 
 export const GeoLocationSchema = SchemaFactory.createForClass(GeoLocation);

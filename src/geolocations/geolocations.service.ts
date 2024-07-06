@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { GeoLocation } from './schemas/geolocation.schema';
 import { FindGeolocationsByUid } from './dto/findGeolocationsByUid.dto';
-import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIP.dto';
+import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
@@ -90,6 +90,8 @@ export class GeolocationsService {
           ),
       );
 
+      console.log("🚀 ~ file: geolocations.service.ts:94 ~ GeolocationsService ~ forawait ~ data:", data)
+      
       await this.geolocationModel.create({
         uid: user.sub,
         url: hostname,

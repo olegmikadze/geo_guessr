@@ -13,7 +13,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { AddGeolocationControllerDTO } from './dto/addGeolocation.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GeolocationsService } from './geolocations.service';
-import { FindGeolocationByIpParam } from './dto/findGeolocationsByIP.dto';
+import { FindGeolocationByIpParam } from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByIpBody } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpParam } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocationsByUrlBody } from './dto/deleteGeolocationsByUrl.dto';
