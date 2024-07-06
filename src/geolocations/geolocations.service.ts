@@ -97,10 +97,10 @@ export class GeolocationsService implements OnApplicationShutdown {
             `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`,
           )
           .pipe(
-            catchError(() => {
-              throw 'An error happened!';
-            })
-          )
+            catchError((err) => {
+              throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+            }),
+          ),
       );
 
       console.log("🚀 ~ file: geolocations.service.ts:104 ~ GeolocationsService ~ forawait ~ data:", data)
