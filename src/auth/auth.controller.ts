@@ -47,7 +47,6 @@ export class AuthController {
   @UseGuards(RefreshGuard)
   @ApiBearerAuth()
   async refreshTokens(@User() user: UserRefreshPayload) {
-    console.log("🚀 ~ file: auth.controller.ts:50 ~ AuthController ~ refreshTokens ~ user:", user)
     return this.authService.refreshTokens({
       userId: user.sub,
       refreshToken: user.refreshToken,

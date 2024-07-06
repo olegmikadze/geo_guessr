@@ -8,6 +8,9 @@ export class GeoLocation {
   @Prop({ required: true })
   ip: string;
 
+  @Prop()
+  url: string | null;
+
   @Prop({ required: true })
   type: string;
 
