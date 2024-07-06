@@ -90,6 +90,7 @@ export class GeolocationsService implements OnApplicationShutdown {
         continue;
       }
 
+      console.log("🚀 ~ file: geolocations.service.ts:98 ~ GeolocationsService ~ forawait ~ `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`:", `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`)
       const { data } = await firstValueFrom(
         this.httpService
           .get<GeoLocation>(
@@ -98,8 +99,8 @@ export class GeolocationsService implements OnApplicationShutdown {
           .pipe(
             catchError(() => {
               throw 'An error happened!';
-            }),
-          ),
+            })
+          )
       );
 
       console.log("🚀 ~ file: geolocations.service.ts:104 ~ GeolocationsService ~ forawait ~ data:", data)
