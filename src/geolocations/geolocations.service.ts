@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -8,6 +8,9 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { GeoLocation } from './schemas/geolocation.schema';
+import { FindGeolocationsByUid } from './dto/findGeolocationsByUid.dto';
+import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIP.dto';
+import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
 
 @Injectable()
 export class GeolocationsService {
@@ -16,6 +19,35 @@ export class GeolocationsService {
     private readonly httpService: HttpService,
     private config: ConfigService,
   ) {}
+
+  async findGeolocationsByUid({ userId }: FindGeolocationsByUid) {
+    try {
+      return await this.geolocationModel.find({ uid: userId });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
+  async findGeolocationByIp({ userId, ip }: FindGeolocationByIpDTO) {
+    try {
+      return await this.geolocationModel.find({ uid: userId, ip });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
+  async findGeolocationsByUrl({ userId, url }: FindGeolocationByUrlDTO) {
+    try {
+      return await this.geolocationModel.find({ uid: userId, url });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
+  async deleteLocationByIP() {}
+
+  async deleteLocationsByUrl() {}
+
 
   async addGeolocation({ user, address }: AddGeolocationServiceDTO) {
     let hostname = null;
