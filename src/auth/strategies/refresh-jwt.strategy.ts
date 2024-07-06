@@ -25,10 +25,6 @@ export class RefreshJwtStrategy extends PassportStrategy(
       ?.replace('Bearer', '')
       .trim();
 
-    console.log(
-      '🚀 ~ file: refresh-jwt.strategy.ts:24 ~ validate ~ refreshToken:',
-      refreshToken,
-    );
     if (!refreshToken)
       throw new HttpException('Refresh token malformed', HttpStatus.FORBIDDEN);
 

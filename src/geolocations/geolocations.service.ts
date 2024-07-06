@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -7,7 +7,6 @@ import { findIpByUrl } from 'utils/dnsLookup';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
 import { GeoLocation } from './schemas/geolocation.schema';
 
 @Injectable()
@@ -17,6 +16,7 @@ export class GeolocationsService {
     private readonly httpService: HttpService,
     private config: ConfigService,
   ) {}
+
   async addGeolocation({ user, address }: AddGeolocationServiceDTO) {
     let hostname = null;
     let ipAddresses = [];
@@ -24,25 +24,29 @@ export class GeolocationsService {
     const addressPattern = findAddressPattern({ address });
 
     if (addressPattern === 'url') {
+      if (!/^https?:\/\//i.test(address)) address = `http://${address}`;
       hostname = new URL(address).hostname;
       ipAddresses = await findIpByUrl(hostname);
     } else ipAddresses.push(address);
 
-    // hostname - 1 ip
-    // hostname - many ip
-    // no hostname - 1 ip
-
     for await (const ipAddress of ipAddresses) {
-      const geolocationExists = await this.geolocationModel.find({
+      const geolocationExists = await this.geolocationModel.findOne({
         ip: ipAddress,
         uid: user.sub,
       });
 
-      if (geolocationExists.length)
-        throw new HttpException(
-          'Geolocation with such name already exists!',
-          HttpStatus.BAD_GATEWAY,
-        );
+      if (geolocationExists) {
+        if (hostname && !geolocationExists.url)
+          // in case user didn't provide hostname but only ip address and such location exists - update hostname for him
+          await this.geolocationModel.updateOne(
+            { _id: geolocationExists._id },
+            { url: hostname },
+          );
+
+        // if already exists so we skip this iteration,
+        // because if we have 2+ locations, response will be an exception for whole request
+        continue;
+      }
 
       const { data } = await firstValueFrom(
         this.httpService
@@ -54,11 +58,6 @@ export class GeolocationsService {
               throw 'An error happened!';
             }),
           ),
-      );
-
-      console.log(
-        '🚀 ~ file: geolocations.service.ts:59 ~ GeolocationsService ~ forawait ~ data:',
-        data,
       );
 
       await this.geolocationModel.create({
