@@ -98,6 +98,7 @@ export class GeolocationsService implements OnApplicationShutdown {
           )
           .pipe(
             catchError((err) => {
+              console.error(err);
               throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
             }),
           ),
