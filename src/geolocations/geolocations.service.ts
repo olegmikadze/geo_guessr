@@ -60,6 +60,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     let ipAddresses = [];
 
     const addressPattern = findAddressPattern({ address });
+    console.log("🚀 ~ file: geolocations.service.ts:63 ~ GeolocationsService ~ addGeolocation ~ addressPattern:", addressPattern)
 
     if (addressPattern === 'url') {
       if (!/^https?:\/\//i.test(address)) address = `http://${address}`;
@@ -67,6 +68,7 @@ export class GeolocationsService implements OnApplicationShutdown {
       ipAddresses = await findIpByUrl(hostname);
     } else ipAddresses.push(address);
 
+    console.log("🚀 ~ file: geolocations.service.ts:72 ~ GeolocationsService ~ forawait ~ ipAddresses:", ipAddresses)
     for await (const ipAddress of ipAddresses) {
       const geolocationExists = await this.geolocationModel.findOne({
         ip: ipAddress,
