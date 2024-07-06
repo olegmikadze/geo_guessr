@@ -43,6 +43,7 @@ export class GeolocationsService {
             { url: hostname },
           );
 
+        //idempotent request
         // if already exists so we skip this iteration,
         // because if we have 2+ locations, response will be an exception for whole request
         continue;
