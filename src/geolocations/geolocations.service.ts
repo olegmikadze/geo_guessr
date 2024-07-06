@@ -72,6 +72,7 @@ export class GeolocationsService implements OnApplicationShutdown {
         ip: ipAddress,
         uid: user.sub,
       });
+      console.log("🚀 ~ file: geolocations.service.ts:75 ~ GeolocationsService ~ forawait ~ geolocationExists:", geolocationExists)
 
       if (geolocationExists) {
         if (hostname && !geolocationExists.url)
@@ -99,6 +100,7 @@ export class GeolocationsService implements OnApplicationShutdown {
           ),
       );
 
+      console.log("🚀 ~ file: geolocations.service.ts:104 ~ GeolocationsService ~ forawait ~ data:", data)
       await this.geolocationModel.create({
         uid: user.sub,
         url: hostname,
