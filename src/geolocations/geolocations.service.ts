@@ -99,16 +99,20 @@ export class GeolocationsService implements OnApplicationShutdown {
           ),
       );
 
-      await this.geolocationModel.create({
-        uid: user.sub,
-        url: hostname,
-        ip: ipAddress,
-        type: data.type,
-        continent_name: data.continent_name,
-        country_name: data.country_name,
-        city: data.city,
-        zip: data.zip,
-      });
+      try {
+        await this.geolocationModel.create({
+          uid: user.sub,
+          url: hostname,
+          ip: ipAddress,
+          type: data.type,
+          continent_name: data.continent_name,
+          country_name: data.country_name,
+          city: data.city,
+          zip: data.zip,
+        });
+      } catch (err) {
+        throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+      }
     }
 
     return { status: HttpStatus.CREATED, message: 'Created' };

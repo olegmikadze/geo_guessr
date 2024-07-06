@@ -14,6 +14,7 @@ import { JwtAuthGuard } from './auth/guards/jwt.guard';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URL'),
+        retryDelay: 5000,
       }),
       inject: [ConfigService],
     }),
