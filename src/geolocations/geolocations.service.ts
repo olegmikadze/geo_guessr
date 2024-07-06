@@ -11,6 +11,8 @@ import { GeoLocation } from './schemas/geolocation.schema';
 import { FindGeolocationsByUid } from './dto/findGeolocationsByUid.dto';
 import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIP.dto';
 import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
+import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
+import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
 
 @Injectable()
 export class GeolocationsService {
@@ -43,11 +45,6 @@ export class GeolocationsService {
       throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
     }
   }
-
-  async deleteLocationByIP() {}
-
-  async deleteLocationsByUrl() {}
-
 
   async addGeolocation({ user, address }: AddGeolocationServiceDTO) {
     let hostname = null;
@@ -106,5 +103,21 @@ export class GeolocationsService {
     }
 
     return { status: HttpStatus.CREATED, message: 'Created' };
+  }
+
+  async deleteGeolocationByIp({ userId, ip }: DeleteGeolocationByIpDTO) {
+    try {
+      return await this.geolocationModel.deleteOne({ uid: userId, ip });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
+  async deleteGeolocationsByUrl({ userId, url }: DeleteGeolocatiosnByUrlDTO) {
+    try {
+      return await this.geolocationModel.deleteMany({ uid: userId, url });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    }
   }
 }

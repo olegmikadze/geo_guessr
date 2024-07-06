@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { JwtPayload } from 'src/auth/types/jwtPayload.type';
 import { User } from 'src/common/decorators/user.decorator';
 import { AddGeolocationControllerDTO } from './dto/addGeolocation.dto';
@@ -6,6 +15,8 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { GeolocationsService } from './geolocations.service';
 import { FindGeolocationByIpParam } from './dto/findGeolocationsByIP.dto';
 import { FindGeolocationByIpBody } from './dto/findGeolocationsByUrl.dto';
+import { DeleteGeolocationByIpParam } from './dto/deleteGeolocationByIp.dto';
+import { DeleteGeolocationsByUrlBody } from './dto/deleteGeolocationsByUrl.dto';
 
 @ApiBearerAuth()
 @Controller('geolocations')
@@ -21,7 +32,6 @@ export class GeolocationsController {
     return await this.geolocationService.addGeolocation({ user, address });
   }
 
-  //localhost:3000/geolocations
   @Get('/')
   @HttpCode(HttpStatus.OK)
   async findGeolocationsByUid(@User() user: JwtPayload) {
@@ -30,7 +40,6 @@ export class GeolocationsController {
     });
   }
 
-  //localhost:3000/geolocations/ip/104.18.32.7
   @Get('/ip/:ip')
   @HttpCode(HttpStatus.OK)
   async findGeolocationByIP(
@@ -45,11 +54,33 @@ export class GeolocationsController {
 
   @Get('/url')
   @HttpCode(HttpStatus.OK)
-  async findGeolocationByUrl(
+  async findGeolocationsByUrl(
     @User() user: JwtPayload,
     @Body() { url }: FindGeolocationByIpBody,
   ) {
     return await this.geolocationService.findGeolocationsByUrl({
+      userId: user.sub,
+      url,
+    });
+  }
+
+  @Delete('/ip/:ip')
+  async deleteLocationByIP(
+    @User() user: JwtPayload,
+    @Param() { ip }: DeleteGeolocationByIpParam,
+  ) {
+    return await this.geolocationService.deleteGeolocationByIp({
+      userId: user.sub,
+      ip,
+    });
+  }
+
+  @Delete('/url')
+  async deleteGeolocationsByUrl(
+    @User() user: JwtPayload,
+    @Body() { url }: DeleteGeolocationsByUrlBody,
+  ) {
+    return await this.geolocationService.deleteGeolocationsByUrl({
       userId: user.sub,
       url,
     });
