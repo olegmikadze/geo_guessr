@@ -4,27 +4,24 @@ import {
   Injectable,
   OnApplicationShutdown,
 } from '@nestjs/common';
-import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
-import { InjectModel } from '@nestjs/mongoose';
+import axios from 'axios';
 import { Model } from 'mongoose';
-import { findAddressPattern } from 'utils/addressType';
 import { findIpByUrl } from 'utils/dnsLookup';
-import { HttpService } from '@nestjs/axios';
+import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { catchError, firstValueFrom } from 'rxjs';
+import { findAddressPattern } from 'utils/addressType';
 import { GeoLocation } from './schemas/geolocation.schema';
+import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
 import { FindGeolocationsByUid } from './dto/findGeolocationsByUid.dto';
 import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
-import axios from 'axios';
 
 @Injectable()
 export class GeolocationsService implements OnApplicationShutdown {
   constructor(
     @InjectModel(GeoLocation.name) private geolocationModel: Model<GeoLocation>,
-    private readonly httpService: HttpService,
     private config: ConfigService,
   ) {}
 
@@ -61,10 +58,6 @@ export class GeolocationsService implements OnApplicationShutdown {
     let ipAddresses = [];
 
     const addressPattern = findAddressPattern({ address });
-    console.log(
-      '🚀 ~ file: geolocations.service.ts:63 ~ GeolocationsService ~ addGeolocation ~ addressPattern:',
-      addressPattern,
-    );
 
     if (addressPattern === 'url') {
       if (!/^https?:\/\//i.test(address)) address = `http://${address}`;
@@ -72,19 +65,16 @@ export class GeolocationsService implements OnApplicationShutdown {
       ipAddresses = await findIpByUrl(hostname);
     } else ipAddresses.push(address);
 
-    console.log(
-      '🚀 ~ file: geolocations.service.ts:72 ~ GeolocationsService ~ forawait ~ ipAddresses:',
-      ipAddresses,
-    );
     for await (const ipAddress of ipAddresses) {
-      const geolocationExists = await this.geolocationModel.findOne({
-        ip: ipAddress,
-        uid: user.sub,
-      });
-      console.log(
-        '🚀 ~ file: geolocations.service.ts:75 ~ GeolocationsService ~ forawait ~ geolocationExists:',
-        geolocationExists,
-      );
+      const geolocationExists = await this.geolocationModel
+        .findOne({
+          ip: ipAddress,
+          uid: user.sub,
+        })
+        .catch((error) => {
+          console.error(error);
+          throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+        });
 
       if (geolocationExists) {
         if (hostname && !geolocationExists.url)
@@ -109,21 +99,21 @@ export class GeolocationsService implements OnApplicationShutdown {
           throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
         });
 
-      console.log(
-        '🚀 ~ file: geolocations.service.ts:109 ~ GeolocationsService ~ forawait ~ response:',
-        data,
-      );
-
-      await this.geolocationModel.create({
-        uid: user.sub,
-        url: hostname,
-        ip: ipAddress,
-        type: data.type,
-        continent_name: data.continent_name,
-        country_name: data.country_name,
-        city: data.city,
-        zip: data.zip,
-      });
+      await this.geolocationModel
+        .create({
+          uid: user.sub,
+          url: hostname,
+          ip: ipAddress,
+          type: data.type,
+          continent_name: data.continent_name,
+          country_name: data.country_name,
+          city: data.city,
+          zip: data.zip,
+        })
+        .catch((error) => {
+          console.error(error);
+          throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+        });
     }
 
     return { status: HttpStatus.CREATED, message: 'Created' };
