@@ -15,7 +15,7 @@ import { AppController } from './app.controller';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URL'),
-        retryDelay: 5000,
+        retryDelay: 5,
       }),
       inject: [ConfigService],
     }),
