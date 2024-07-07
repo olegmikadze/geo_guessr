@@ -6,17 +6,17 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { SignUpDTO } from './dto/signup.dto';
-import { Public } from 'src/common/decorators/publicRoute.decorator';
-import { Tokens } from './types/tokens.type';
-import { User } from 'src/common/decorators/user.decorator';
-import { RefreshGuard } from './guards/refresh-jwt.guard';
-import { UserRefreshPayload } from './types/user-payload.type';
-import { JwtPayload } from './types/jwt-payload.type';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { SignInDTO } from './dto/signin.dto';
 import { LogOutResponse } from './types/logout.types';
+import { UserRefreshPayload } from './types/user-payload.type';
+import { JwtPayload } from './types/jwt-payload.type';
+import { Tokens } from './types/tokens.type';
+import { AuthService } from './auth.service';
+import { Public } from 'src/common/decorators/publicRoute.decorator';
+import { User } from 'src/common/decorators/user.decorator';
+import { RefreshGuard } from './guards/refresh-jwt.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {

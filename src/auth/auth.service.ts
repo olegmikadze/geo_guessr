@@ -1,21 +1,21 @@
 /* eslint-disable prettier/prettier */
+import { LogOutServiceDTO } from './dto/logout.dto';
+import { SignUpDTO } from './dto/signup.dto';
+import { JwtPayload } from './types/jwt-payload.type';
+import { SignInDTO } from './dto/signin.dto';
+import { Tokens } from './types/tokens.type';
+import { SignJwtTokens } from './types/sign-jwt-tokens.type';
+import { LogOutResponse } from './types/logout.types';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UpdateRefreshToken } from './types/update-refresh-token.type';
 import { HttpException, HttpStatus, Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { Model } from 'mongoose';
-import { SignUpDTO } from './dto/signup.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from './types/jwt-payload.type';
-import { Tokens } from './types/tokens.type';
 import { bcryptHash } from 'utils/bcrypt';
-import { SignJwtTokens } from './types/sign-jwt-tokens.type';
 import * as bcrypt from 'bcrypt';
-import { LogOutServiceDTO } from './dto/logout.dto';
-import { LogOutResponse } from './types/logout.types';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { UpdateRefreshToken } from './types/update-refresh-token.type';
-import { SignInDTO } from './dto/signin.dto';
 @Injectable()
 export class AuthService implements OnApplicationShutdown {
   private readonly logger = new Logger(AuthService.name);
