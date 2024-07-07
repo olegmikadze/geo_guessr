@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,15 +9,16 @@ import {
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async getProfile({
     uid,
   }: GetProfileServiceDTO): Promise<GetProfileResponseDTO> {
-    try {
-      return await this.userModel.findById(uid);
-    } catch (error) {
+    return await this.userModel.findById(uid).catch((error) => {
+      this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
-    }
+    });
   }
 }
