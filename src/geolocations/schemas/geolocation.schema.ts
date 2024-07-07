@@ -1,11 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { SchemaTypes, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class GeoLocation {
-  @Prop({ type: SchemaTypes.ObjectId })
-  _id: Types.ObjectId;
-
   @Prop({ required: true })
   uid: string;
 

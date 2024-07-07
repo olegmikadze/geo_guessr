@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   OnApplicationShutdown,
 } from '@nestjs/common';
 import axios from 'axios';
@@ -17,40 +18,17 @@ import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
-
 @Injectable()
 export class GeolocationsService implements OnApplicationShutdown {
+  private readonly logger = new Logger(GeolocationsService.name);
+
   constructor(
     @InjectModel(GeoLocation.name) private geolocationModel: Model<GeoLocation>,
     private config: ConfigService,
   ) {}
 
   onApplicationShutdown(signal?: string) {
-    console.log(signal);
-  }
-
-  async findGeolocationsByUid({ userId }: FindGeolocationsByUid) {
-    try {
-      return await this.geolocationModel.find({ uid: userId });
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
-    }
-  }
-
-  async findGeolocationByIp({ userId, ip }: FindGeolocationByIpDTO) {
-    try {
-      return await this.geolocationModel.find({ uid: userId, ip });
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
-    }
-  }
-
-  async findGeolocationsByUrl({ userId, url }: FindGeolocationByUrlDTO) {
-    try {
-      return await this.geolocationModel.find({ uid: userId, url });
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
-    }
+    this.logger.log(signal);
   }
 
   async addGeolocation({ user, address }: AddGeolocationServiceDTO) {
@@ -59,11 +37,16 @@ export class GeolocationsService implements OnApplicationShutdown {
 
     const addressPattern = findAddressPattern({ address });
 
+    if (!addressPattern)
+      throw new HttpException('Address not found!', HttpStatus.BAD_REQUEST);
+
     if (addressPattern === 'url') {
       if (!/^https?:\/\//i.test(address)) address = `http://${address}`;
       hostname = new URL(address).hostname;
       ipAddresses = await findIpByUrl(hostname);
     } else ipAddresses.push(address);
+
+    const responseData = [];
 
     for await (const ipAddress of ipAddresses) {
       const geolocationExists = await this.geolocationModel
@@ -99,39 +82,70 @@ export class GeolocationsService implements OnApplicationShutdown {
           throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
         });
 
-      await this.geolocationModel
-        .create({
-          uid: user.sub,
-          url: hostname,
-          ip: ipAddress,
-          type: data.type,
-          continent_name: data.continent_name,
-          country_name: data.country_name,
-          city: data.city,
-          zip: data.zip,
-        })
-        .catch((error) => {
-          console.error(error);
-          throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
-        });
+      const geolocationBody = {
+        uid: user.sub,
+        url: hostname,
+        ip: ipAddress,
+        type: data.type,
+        continent_name: data.continent_name,
+        country_name: data.country_name,
+        city: data.city,
+        zip: data.zip,
+      };
+
+      await this.geolocationModel.create(geolocationBody).catch((error) => {
+        this.logger.warn(error);
+        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+      });
+
+      responseData.push(geolocationBody);
     }
 
-    return { status: HttpStatus.CREATED, message: 'Created' };
+    return { status: HttpStatus.CREATED, data: responseData };
+  }
+
+  async findGeolocationsByUid({ userId }: FindGeolocationsByUid) {
+    try {
+      return await this.geolocationModel.find({ uid: userId });
+    } catch (error) {
+      this.logger.warn(error);
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
+  async findGeolocationByIp({ userId, ip }: FindGeolocationByIpDTO) {
+    try {
+      return await this.geolocationModel.find({ uid: userId, ip });
+    } catch (error) {
+      this.logger.warn(error);
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
+  async findGeolocationsByUrl({ userId, url }: FindGeolocationByUrlDTO) {
+    try {
+      return await this.geolocationModel.find({ uid: userId, url });
+    } catch (error) {
+      this.logger.warn(error);
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
   }
 
   async deleteGeolocationByIp({ userId, ip }: DeleteGeolocationByIpDTO) {
     try {
       return await this.geolocationModel.deleteOne({ uid: userId, ip });
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    } catch (error) {
+      this.logger.warn(error);
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
   async deleteGeolocationsByUrl({ userId, url }: DeleteGeolocatiosnByUrlDTO) {
     try {
       return await this.geolocationModel.deleteMany({ uid: userId, url });
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    } catch (error) {
+      this.logger.warn(error);
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 }

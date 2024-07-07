@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { Types } from 'mongoose';
 
 export class GetProfileServiceDTO {
   @ApiProperty()
@@ -8,10 +7,6 @@ export class GetProfileServiceDTO {
 }
 
 export class GetProfileResponseDTO {
-  @ApiProperty()
-  @Exclude()
-  _id: Types.ObjectId;
-
   @ApiProperty()
   fullName: string;
 
