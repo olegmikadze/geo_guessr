@@ -14,8 +14,8 @@ import { SignInDto } from './dto/signIn.dto';
 import * as bcrypt from 'bcrypt';
 import { LogOutDto } from './dto/logOut.dto';
 import { LogOutResponse } from './types/logOut.types';
-import { RefreshTokensDto } from './dto/refreshTokens.dto';
-import { UpdateRefreshTokens } from './types/updateRefreshTokens.type';
+import { RefreshTokenDto } from './dto/refreshTokens.dto';
+import { UpdateRefreshToken } from './types/updateRefreshToken.type';
 @Injectable()
 export class AuthService implements OnApplicationShutdown {
   constructor(
@@ -108,7 +108,7 @@ export class AuthService implements OnApplicationShutdown {
     return { status: HttpStatus.OK, message: 'OK' };
   }
 
-  async refreshTokens({ userId, refreshToken }: RefreshTokensDto) {
+  async refreshToken({ userId, refreshToken }: RefreshTokenDto) {
     const refreshUser = await this.userModel
       .findById(userId)
       .catch((error) => {
@@ -137,7 +137,7 @@ export class AuthService implements OnApplicationShutdown {
     return tokens;
   }
 
-  async updateRefreshToken({ _id, refreshToken }: UpdateRefreshTokens) {
+  async updateRefreshToken({ _id, refreshToken }: UpdateRefreshToken) {
     try {
       const hashedRefreshToken = await bcryptHash(refreshToken);
       await this.userModel.findOneAndUpdate(

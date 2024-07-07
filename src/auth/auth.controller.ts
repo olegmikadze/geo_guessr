@@ -42,12 +42,12 @@ export class AuthController {
     return await this.authService.logOut({ userId: user.sub });
   }
 
-  @Post('/refreshTokens')
+  @Post('/refreshToken')
   @Public()
   @UseGuards(RefreshGuard)
   @ApiBearerAuth()
-  async refreshTokens(@User() user: UserRefreshPayload) {
-    return this.authService.refreshTokens({
+  async refreshToken(@User() user: UserRefreshPayload) {
+    return this.authService.refreshToken({
       userId: user.sub,
       refreshToken: user.refreshToken,
     });
