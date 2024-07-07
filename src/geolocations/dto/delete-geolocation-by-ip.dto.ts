@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class DeleteGeolocationsByUrlBody {
+export class DeleteGeoByIpParamDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  url: string;
+  ip: string;
 }
 
-export class DeleteGeolocatiosnByUrlDTO {
+export class DeleteGeoByIpDTO {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
@@ -17,5 +17,15 @@ export class DeleteGeolocatiosnByUrlDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  url: string;
+  ip: string;
+}
+
+export class DeleteGeoByIpResponseDTO {
+  @ApiProperty()
+  @IsNumber()
+  status: number;
+
+  @ApiProperty()
+  @IsString()
+  data: string;
 }

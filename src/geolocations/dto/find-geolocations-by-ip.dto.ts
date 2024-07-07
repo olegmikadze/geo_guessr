@@ -29,5 +29,5 @@ export class FindGeoByIpResponseDTO {
   status: number;
 
   @ApiProperty()
-  data: Geolocation[];
+  data: Geolocation;
 }

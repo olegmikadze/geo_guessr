@@ -12,15 +12,28 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { findAddressPattern } from 'utils/addressType';
 import { Geolocation } from './schemas/geolocation.schema';
-import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
-import { FindGeolocationsByUid } from './dto/findGeolocationsByUid.dto';
+import { AddGeoResponseDTO, AddGeoServiceDTO } from './dto/add-geolocation.dto';
+import {
+  FindGeoByUidResponseDTO,
+  FindGeolocationsByUid,
+} from './dto/find-geolocations-by-uid.dto';
+import {
+  FindGeoByUrlDTO,
+  FindGeoByUrlResponseDTO,
+} from './dto/find-geolocations-by-url.dto';
+import {
+  DeleteGeoByIpDTO,
+  DeleteGeoByIpResponseDTO,
+} from './dto/delete-geolocation-by-ip.dto';
+import {
+  DeleteGeoByUrlDTO,
+  DeleteGeoByUrlResponseDTO,
+} from './dto/delete-geolocations-by-url.dto';
 import {
   FindGeoByIpResponseDTO,
   FindGeoByIpServiceDTO,
-} from './dto/findGeolocationsByIp.dto';
-import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
-import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
-import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
+} from './dto/find-geolocations-by-ip.dto';
+
 @Injectable()
 export class GeolocationsService implements OnApplicationShutdown {
   private readonly logger = new Logger(GeolocationsService.name);
@@ -34,7 +47,10 @@ export class GeolocationsService implements OnApplicationShutdown {
     this.logger.log(signal);
   }
 
-  async addGeolocation({ user, address }: AddGeolocationServiceDTO) {
+  async addGeolocation({
+    user,
+    address,
+  }: AddGeoServiceDTO): Promise<AddGeoResponseDTO> {
     let hostname = null;
     let ipAddresses = [];
 
@@ -107,9 +123,12 @@ export class GeolocationsService implements OnApplicationShutdown {
     return { status: HttpStatus.CREATED, data: responseData };
   }
 
-  async findGeolocationsByUid({ userId }: FindGeolocationsByUid) {
+  async findGeolocationsByUid({
+    userId,
+  }: FindGeolocationsByUid): Promise<FindGeoByUidResponseDTO> {
     try {
-      return await this.geolocationModel.find({ uid: userId });
+      const data = await this.geolocationModel.find({ uid: userId });
+      return { status: HttpStatus.OK, data };
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
@@ -121,7 +140,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     ip,
   }: FindGeoByIpServiceDTO): Promise<FindGeoByIpResponseDTO> {
     try {
-      const data = await this.geolocationModel.find({ uid: userId, ip });
+      const data = await this.geolocationModel.findOne({ uid: userId, ip });
       return { status: HttpStatus.OK, data };
     } catch (error) {
       this.logger.error(error);
@@ -129,27 +148,39 @@ export class GeolocationsService implements OnApplicationShutdown {
     }
   }
 
-  async findGeolocationsByUrl({ userId, url }: FindGeolocationByUrlDTO) {
+  async findGeolocationsByUrl({
+    userId,
+    url,
+  }: FindGeoByUrlDTO): Promise<FindGeoByUrlResponseDTO> {
     try {
-      return await this.geolocationModel.find({ uid: userId, url });
+      const data = await this.geolocationModel.find({ uid: userId, url });
+      return { status: HttpStatus.OK, data };
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  async deleteGeolocationByIp({ userId, ip }: DeleteGeolocationByIpDTO) {
+  async deleteGeolocationByIp({
+    userId,
+    ip,
+  }: DeleteGeoByIpDTO): Promise<DeleteGeoByIpResponseDTO> {
     try {
-      return await this.geolocationModel.deleteOne({ uid: userId, ip });
+      await this.geolocationModel.deleteOne({ uid: userId, ip });
+      return { status: HttpStatus.OK, data: ip };
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  async deleteGeolocationsByUrl({ userId, url }: DeleteGeolocatiosnByUrlDTO) {
+  async deleteGeolocationsByUrl({
+    userId,
+    url,
+  }: DeleteGeoByUrlDTO): Promise<DeleteGeoByUrlResponseDTO> {
     try {
-      return await this.geolocationModel.deleteMany({ uid: userId, url });
+      await this.geolocationModel.deleteMany({ uid: userId, url });
+      return { status: HttpStatus.OK, data: url };
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
