@@ -94,7 +94,7 @@ export class GeolocationsService implements OnApplicationShutdown {
       };
 
       await this.geolocationModel.create(geolocationBody).catch((error) => {
-        this.logger.warn(error);
+        this.logger.error(error);
         throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
       });
 
@@ -108,7 +108,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     try {
       return await this.geolocationModel.find({ uid: userId });
     } catch (error) {
-      this.logger.warn(error);
+      this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
@@ -117,7 +117,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     try {
       return await this.geolocationModel.find({ uid: userId, ip });
     } catch (error) {
-      this.logger.warn(error);
+      this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
@@ -126,7 +126,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     try {
       return await this.geolocationModel.find({ uid: userId, url });
     } catch (error) {
-      this.logger.warn(error);
+      this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
@@ -135,7 +135,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     try {
       return await this.geolocationModel.deleteOne({ uid: userId, ip });
     } catch (error) {
-      this.logger.warn(error);
+      this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
@@ -144,7 +144,7 @@ export class GeolocationsService implements OnApplicationShutdown {
     try {
       return await this.geolocationModel.deleteMany({ uid: userId, url });
     } catch (error) {
-      this.logger.warn(error);
+      this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }

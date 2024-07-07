@@ -6,7 +6,7 @@ export async function findIpByUrl(hostname: string): Promise<string[]> {
     const addresses = await dns.lookup(hostname, { all: true });
     return addresses.map((address) => address.address);
   } catch (error) {
-    this.logger.log(error);
+    this.logger.error(error);
     throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
   }
 }

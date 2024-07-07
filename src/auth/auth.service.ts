@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpException, HttpStatus, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { Model } from 'mongoose';
@@ -18,6 +18,8 @@ import { RefreshTokenDto } from './dto/refreshTokens.dto';
 import { UpdateRefreshToken } from './types/updateRefreshToken.type';
 @Injectable()
 export class AuthService implements OnApplicationShutdown {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
@@ -25,7 +27,7 @@ export class AuthService implements OnApplicationShutdown {
   ) {}
 
   onApplicationShutdown(signal?: string) {
-    console.log(signal);
+    this.logger.log(signal);
   }
 
   async signUp({ email, fullName, password, confirmPassword }: SignUpDto): Promise<Tokens> {
@@ -49,6 +51,7 @@ export class AuthService implements OnApplicationShutdown {
         password: hashedPassword,
       })
       .catch((error) => {
+        this.logger.error(error)
         throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
       });
 
@@ -63,7 +66,9 @@ export class AuthService implements OnApplicationShutdown {
   }
 
   async signIn({ email, password }: SignInDto): Promise<Tokens> {
-    const signInUser = await this.userModel.findOne({ email });
+    const signInUser = await this.userModel.findOne({ email }).catch(error => {
+      this.logger.error(error);
+    });
 
     if (!signInUser) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 
@@ -86,6 +91,7 @@ export class AuthService implements OnApplicationShutdown {
     const logOutUser = await this.userModel
       .findById(userId)
       .catch((error) => {
+        this.logger.error(error);
         throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
       });
 
@@ -102,6 +108,7 @@ export class AuthService implements OnApplicationShutdown {
         { refreshToken: '' },
       )
       .catch((error) => {
+        this.logger.error(error);
         throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
       });
 
@@ -112,6 +119,7 @@ export class AuthService implements OnApplicationShutdown {
     const refreshUser = await this.userModel
       .findById(userId)
       .catch((error) => {
+        this.logger.error(error);
         throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
       });;
 
@@ -144,8 +152,9 @@ export class AuthService implements OnApplicationShutdown {
         { _id },
         { refreshToken: hashedRefreshToken },
       );
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
