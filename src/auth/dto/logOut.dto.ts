@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class LogOutDto {
+export class LogOutServiceDTO {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()

@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { JwtPayload } from 'src/auth/types/jwtPayload.type';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 import { User } from 'src/common/decorators/user.decorator';
 import { UsersService } from './users.service';
 import { GetProfileResponseDTO } from './dto/get-profile.dto';

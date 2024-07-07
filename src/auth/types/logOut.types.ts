@@ -1,4 +1,4 @@
-export type LogOutResponse = Promise<{
+export type LogOutResponse = {
   status: number;
   message: string;
-}>;
+};

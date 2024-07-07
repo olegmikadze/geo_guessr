@@ -8,7 +8,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { JwtPayload } from 'src/auth/types/jwtPayload.type';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 import { User } from 'src/common/decorators/user.decorator';
 import { AddGeolocationControllerDTO } from './dto/addGeolocation.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';

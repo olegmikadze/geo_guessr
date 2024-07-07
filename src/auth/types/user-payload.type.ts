@@ -1,4 +1,4 @@
-import { JwtPayload } from './jwtPayload.type';
+import { JwtPayload } from './jwt-payload.type';
 
 export type UserPayload = JwtPayload;
 

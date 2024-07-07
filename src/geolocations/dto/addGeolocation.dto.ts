@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { JwtPayload } from 'src/auth/types/jwtPayload.type';
+import { JwtPayload } from 'src/auth/types/jwt-payload.type';
 
 export class AddGeolocationControllerDTO {
   @ApiProperty()

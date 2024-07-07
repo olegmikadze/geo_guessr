@@ -3,19 +3,19 @@ import { HttpException, HttpStatus, Injectable, Logger, OnApplicationShutdown } 
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { Model } from 'mongoose';
-import { SignUpDto } from './dto/signUp.dto';
+import { SignUpDTO } from './dto/signup.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from './types/jwtPayload.type';
+import { JwtPayload } from './types/jwt-payload.type';
 import { Tokens } from './types/tokens.type';
 import { bcryptHash } from 'utils/bcrypt';
-import { SignJwtTokens } from './types/signJwtTokens.type';
-import { SignInDto } from './dto/signIn.dto';
+import { SignJwtTokens } from './types/sign-jwt-tokens.type';
 import * as bcrypt from 'bcrypt';
-import { LogOutDto } from './dto/logOut.dto';
-import { LogOutResponse } from './types/logOut.types';
-import { RefreshTokenDto } from './dto/refreshTokens.dto';
-import { UpdateRefreshToken } from './types/updateRefreshToken.type';
+import { LogOutServiceDTO } from './dto/logout.dto';
+import { LogOutResponse } from './types/logout.types';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UpdateRefreshToken } from './types/update-refresh-token.type';
+import { SignInDTO } from './dto/signin.dto';
 @Injectable()
 export class AuthService implements OnApplicationShutdown {
   private readonly logger = new Logger(AuthService.name);
@@ -30,7 +30,7 @@ export class AuthService implements OnApplicationShutdown {
     this.logger.log(signal);
   }
 
-  async signUp({ email, fullName, password, confirmPassword }: SignUpDto): Promise<Tokens> {
+  async signUp({ email, fullName, password, confirmPassword }: SignUpDTO): Promise<Tokens> {
     const userExists = await this.userModel.findOne({ email });
 
     if (userExists)
@@ -65,7 +65,7 @@ export class AuthService implements OnApplicationShutdown {
     return { accessToken, refreshToken };
   }
 
-  async signIn({ email, password }: SignInDto): Promise<Tokens> {
+  async signIn({ email, password }: SignInDTO): Promise<Tokens> {
     const signInUser = await this.userModel.findOne({ email }).catch(error => {
       this.logger.error(error);
     });
@@ -87,7 +87,7 @@ export class AuthService implements OnApplicationShutdown {
     return { accessToken, refreshToken };
   }
 
-  async logOut({ userId }: LogOutDto): LogOutResponse {
+  async logOut({ userId }: LogOutServiceDTO): Promise<LogOutResponse> {
     const logOutUser = await this.userModel
       .findById(userId)
       .catch((error) => {
@@ -115,7 +115,7 @@ export class AuthService implements OnApplicationShutdown {
     return { status: HttpStatus.OK, message: 'OK' };
   }
 
-  async refreshToken({ userId, refreshToken }: RefreshTokenDto) {
+  async refreshToken({ userId, refreshToken }: RefreshTokenDto): Promise<Tokens> {
     const refreshUser = await this.userModel
       .findById(userId)
       .catch((error) => {
@@ -145,7 +145,7 @@ export class AuthService implements OnApplicationShutdown {
     return tokens;
   }
 
-  async updateRefreshToken({ _id, refreshToken }: UpdateRefreshToken) {
+  async updateRefreshToken({ _id, refreshToken }: UpdateRefreshToken): Promise<void> {
     try {
       const hashedRefreshToken = await bcryptHash(refreshToken);
       await this.userModel.findOneAndUpdate(
