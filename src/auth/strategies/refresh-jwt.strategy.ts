@@ -4,11 +4,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../types/jwt-payload.type';
 import { Request } from 'express';
+import { REFRESH_JWT_STRATEGY } from 'utils/constants';
 
 @Injectable()
 export class RefreshJwtStrategy extends PassportStrategy(
   Strategy,
-  'refresh-jwt',
+  REFRESH_JWT_STRATEGY,
 ) {
   constructor(private config: ConfigService) {
     super({
