@@ -13,10 +13,10 @@ import { User } from 'src/common/decorators/user.decorator';
 import { AddGeolocationControllerDTO } from './dto/addGeolocation.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GeolocationsService } from './geolocations.service';
-import { FindGeolocationByIpParam } from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByIpBody } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpParam } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocationsByUrlBody } from './dto/deleteGeolocationsByUrl.dto';
+import { FindGeoByIpBodyDTO } from './dto/findGeolocationsByIp.dto';
 
 @ApiBearerAuth()
 @Controller('geolocations')
@@ -42,9 +42,9 @@ export class GeolocationsController {
 
   @Get('/ip/:ip')
   @HttpCode(HttpStatus.OK)
-  async findGeolocationByIP(
+  async findGeolocationByIp(
     @User() user: JwtPayload,
-    @Param() { ip }: FindGeolocationByIpParam,
+    @Param() { ip }: FindGeoByIpBodyDTO,
   ) {
     return await this.geolocationService.findGeolocationByIp({
       userId: user.sub,

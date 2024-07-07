@@ -11,10 +11,13 @@ import { findIpByUrl } from 'utils/dnsLookup';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { findAddressPattern } from 'utils/addressType';
-import { GeoLocation } from './schemas/geolocation.schema';
+import { Geolocation } from './schemas/geolocation.schema';
 import { AddGeolocationServiceDTO } from './dto/addGeolocation.dto';
 import { FindGeolocationsByUid } from './dto/findGeolocationsByUid.dto';
-import { FindGeolocationByIpDTO } from './dto/findGeolocationsByIp.dto';
+import {
+  FindGeoByIpResponseDTO,
+  FindGeoByIpServiceDTO,
+} from './dto/findGeolocationsByIp.dto';
 import { FindGeolocationByUrlDTO } from './dto/findGeolocationsByUrl.dto';
 import { DeleteGeolocationByIpDTO } from './dto/deleteGeolocationByIp.dto';
 import { DeleteGeolocatiosnByUrlDTO } from './dto/deleteGeolocationsByUrl.dto';
@@ -23,7 +26,7 @@ export class GeolocationsService implements OnApplicationShutdown {
   private readonly logger = new Logger(GeolocationsService.name);
 
   constructor(
-    @InjectModel(GeoLocation.name) private geolocationModel: Model<GeoLocation>,
+    @InjectModel(Geolocation.name) private geolocationModel: Model<Geolocation>,
     private config: ConfigService,
   ) {}
 
@@ -74,7 +77,7 @@ export class GeolocationsService implements OnApplicationShutdown {
       }
 
       const { data } = await axios
-        .get<GeoLocation>(
+        .get<Geolocation>(
           `http://api.ipstack.com/${ipAddress}?access_key=${this.config.get<string>('IPSTACK_SECRET')}`,
         )
         .catch((error) => {
@@ -113,9 +116,13 @@ export class GeolocationsService implements OnApplicationShutdown {
     }
   }
 
-  async findGeolocationByIp({ userId, ip }: FindGeolocationByIpDTO) {
+  async findGeolocationByIp({
+    userId,
+    ip,
+  }: FindGeoByIpServiceDTO): Promise<FindGeoByIpResponseDTO> {
     try {
-      return await this.geolocationModel.find({ uid: userId, ip });
+      const data = await this.geolocationModel.find({ uid: userId, ip });
+      return { status: HttpStatus.OK, data };
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);

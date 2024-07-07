@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true })
-export class GeoLocation {
+export class Geolocation {
   @Prop({ required: true })
   uid: string;
 
@@ -27,4 +27,4 @@ export class GeoLocation {
   zip: string | null;
 }
 
-export const GeoLocationSchema = SchemaFactory.createForClass(GeoLocation);
+export const GeoLocationSchema = SchemaFactory.createForClass(Geolocation);

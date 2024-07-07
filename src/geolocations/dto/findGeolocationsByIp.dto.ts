@@ -1,14 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsIP, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Geolocation } from '../schemas/geolocation.schema';
 
-export class FindGeolocationByIpParam {
+export class FindGeoByIpBodyDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsIP()
   ip: string;
 }
 
-export class FindGeolocationByIpDTO {
+export class FindGeoByIpServiceDTO {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
@@ -17,5 +19,15 @@ export class FindGeolocationByIpDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsIP()
   ip: string;
+}
+
+export class FindGeoByIpResponseDTO {
+  @ApiProperty()
+  @IsNumber()
+  status: number;
+
+  @ApiProperty()
+  data: Geolocation[];
 }
